@@ -72,14 +72,32 @@ int main() {
  * Objetivo: Ler o arquivo texto e popular as variáveis e a matriz do mapa.
  */
 void lerDadosEntrada(const char* nomeArquivo, int* esquinaIncendio, int* numEsquinas, int mapa[][MAX_ESQUINAS + 1]) {
-    // 1. Abrir o arquivo (fopen)
-    // 2. Tratar erro se o arquivo não existir
-    // 3. Ler esquinaIncendio (fscanf)
-    // 4. Ler numEsquinas (fscanf)
-    // 5. Inicializar o 'mapa' (ex: com 0 ou -1)
-    // 6. Ler as triplas (origem, destino, tempo) em um loop (fscanf)
-    // 7. Parar o loop quando origem for 0 
-    // 8. Fechar o arquivo (fclose)
+    FILE *arquivo = fopen(nomeArquivo, "r");
+    
+    if (arquivo == NULL) {
+        printf("Erro ao abrir o arquivo de entrada '%s'!\n", nomeArquivo);
+    }
+    fscanf(arquivo, "%d", esquinaIncendio);
+
+    fscanf(arquivo, "%d", numEsquinas);
+
+
+    for (int i = 0; i <= *numEsquinas; i++) {
+        for (int j = 0; j <= *numEsquinas; j++) {
+            mapa[i][j] = -1; // -1 = sem rota direta
+        }
+    }
+
+    int origem, destino, tempo;
+
+    while (fscanf(arquivo, "%d %d %d", &origem, &destino, &tempo) == 3) {
+        if (origem == 0) {
+            break;
+        }
+        mapa[origem][destino] = tempo;
+    }
+
+    fclose(arquivo);
 }
 
 /*
