@@ -106,16 +106,51 @@ void lerDadosEntrada(const char* nomeArquivo, int* esquinaIncendio, int* numEsqu
  * Objetivo: Executar o algoritmo (Dijkstra) e preencher T[] e R[].
  */
 void executarRotaMaisRapida(int numEsquinas, int mapa[][MAX_ESQUINAS + 1], int T[], int R[]) {
-    // 1. Criar vetor E[] (visitados/na fila) 
-    // 2. Inicializar T[] com INT_MAX, E[] com 1 (presente), R[] com -1 (nulo) [cite: 19, 20]
-    // 3. T[1] = 0 
-    // 4. Loop 'enquanto E não estiver vazio' 
-    // 5.   Achar 'v' em E com menor T[v] 
-    // 6.   Remover 'v' de E (E[v] = 0) 
-    // 7.   Loop 'para cada vizinho e' de 'v' [cite: 26]
-    // 8.     Se (T[e] > T[v] + mapa[v][e]) E 'e' está em E [cite: 27, 28]
-    // 9.       T[e] = T[v] + mapa[v][e] 
-    // 10.      R[e] = v  <- ESTA É A MODIFICAÇÃO CHAVE! 
+    int E[MAX_ESQUINAS + 1];
+
+    for (int i = 1; i <= numEsquinas; i++){
+        T[i] = INT_MAX; //Infinito
+        E[i] = 1; //Todas as esquinas começam com E
+        R[i] = -1; // -1 significa "sem predecessor"
+    }
+
+    T[1] = 0;
+
+    //Enquanto E não estiver vazio, iterar numEsquinas
+    for (int count = 1; count <= numEsquinas; count++){
+        
+        int v = -1;
+        int menorTempo = INT_MAX;
+
+        for (int i = 1; i <= numEsquinas; i++){
+            //se i esta em E e tem o menor tempo
+            if(E[i] == 1 && T[i] < menorTempo){
+                menorTempo = T[i];
+                v = i;
+            }
+        }
+
+        //Se v == -1, significa que o resto do grafo é inalcançável
+        if (v == -1){
+            break;
+        }
+
+        E[v] = 0;
+
+        //loop 'para cada vizinho e' de 'v'
+        for (int e = 1; e <= numEsquinas; e++){
+            if(mapa[v][e] != -1 && E[e] == 1 && T[v] != INT_MAX){
+                //checa se existe um caminho de 'v' para 'e', se esquina 'e' ainda está em E (E[e] == 1) e se T[v] não é infinito
+                int novoTempo = T[v] + mapa[v][e];
+                
+                if(novoTempo < T[e]){
+                    T[e] = novoTempo;
+                    //salva v como predescessor de e no caminho mais curto
+                    R[e] = v;
+                }
+            }
+        }
+    }
 }
 
 /*
