@@ -171,6 +171,32 @@ void reconstruirCaminho(int esquinaAtual, int R[], FILE* arquivo) {
  * Objetivo: Imprimir no console e salvar em "saida.txt" 
  */
 void gerarSaida(int esquinaIncendio, int numEsquinas, int T[], int R[]) {
+    const char* arquivoSaida = "saida.txt";
+    FILE* arquivo_saida = fopen(arquivoSaida, "w");
+    if (arquivo_saida == NULL) {
+        printf("Erro ao abrir o arquivo de saída 'saida.txt'!\n");
+        return;
+    }
+
+    if (T[esquinaIncendio] == INT_MAX) {
+        // Incêndio inalcançável
+        printf("Inacessível\n");
+        fprintf(arquivo_saida, "Inacessível\n");
+    } else {
+
+    printf("Caminho mais rápido: ");
+    reconstruirCaminho(esquinaIncendio, R, stdout);
+    
+    printf("\nTempo total: %d minutos\n", T[esquinaIncendio]);
+
+    printf("Caminho mais rápido (arquivo): ");
+        reconstruirCaminho(esquinaIncendio, R, arquivo_saida);
+        fprintf(arquivo_saida, "\n");
+        fprintf(arquivo_saida, "\nTempo total: %d minutos\n", T[esquinaIncendio]);
+       
+    }
+
+    fclose(arquivo_saida);
     // 1. Abrir "saida.txt" (fopen)
     // 2. Chamar reconstruirCaminho(esquinaIncendio, R, stdout);
     // 3. Chamar reconstruirCaminho(esquinaIncendio, R, arquivo_saida);
