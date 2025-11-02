@@ -153,6 +153,18 @@ void executarRotaMaisRapida(int numEsquinas, int mapa[][MAX_ESQUINAS + 1], int T
     }
 }
 
+void reconstruirCaminho(int esquinaAtual, int R[], FILE* arquivo) {
+    // Caso base: chegamos ao quartel (esquina 1)
+    if (esquinaAtual == 1) {
+        fprintf(arquivo, "1");
+    }else {
+        // Chamada recursiva para o predecessor
+        reconstruirCaminho(R[esquinaAtual], R, arquivo);
+        // Imprime a esquina atual após o caminho anterior
+        fprintf(arquivo, " %d", esquinaAtual);
+    }
+}
+
 /*
  * Função: gerarSaida
  * (Implementar nos Dias 15-19)
@@ -165,22 +177,4 @@ void gerarSaida(int esquinaIncendio, int numEsquinas, int T[], int R[]) {
     // 4. Imprimir tempo total no console (printf) 
     // 5. Imprimir tempo total no arquivo (fprintf)
     // 6. Fechar arquivo (fclose)
-}
-
-/*
- * Função: reconstruirCaminho
- * (Implementar nos Dias 15-17)
- * Objetivo: Usar R[] para imprimir o caminho (do início ao fim).
- */
-void reconstruirCaminho(int esquinaAtual, int R[], FILE* arquivo) {
-    // Esta função é um pouco mais complexa, pois R[] dá o caminho ao contrário.
-    // Pode ser feita com recursão ou salvando em um array e imprimindo ao contrário.
-    
-    // Exemplo com recursão (mais elegante):
-    // if (esquinaAtual == 1) {
-    //    fprintf(arquivo, "1");
-    // } else {
-    //    reconstruirCaminho(R[esquinaAtual], R, arquivo);
-    //    fprintf(arquivo, " %d", esquinaAtual);
-    // }
 }
