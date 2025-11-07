@@ -1,127 +1,130 @@
 /*
- * Universidade Presbiteriana Mackenzie
- * Projeto e Análise de Algoritmos II - 2024
- * * PROJETO 2: Bombeiros
  * * --- IDENTIFICAÇÃO DO GRUPO --- 
- * Integrante 1: [Nome Completo], RA: [Numero do RA]
- * Integrante 2: [Nome Completo], RA: [Numero do RA]
+ * Integrante 1: Enrique Cipolla Martins, RA: [Numero do RA]
+ * Integrante 2: Henrique Ferreira Marciano, RA: 10439797
  * ...
  * * --- REFERÊNCIAS --- 
- * (ex: Livro, Artigo, Site, etc.)
+ * https://stackoverflow.com/questions
+ * https://pt.stackoverflow.com/questions/587661/arquivos-linguagem-c
+ * https://www.tutorialspoint.com/c_standard_library/limits_h.htm
  * * --- LINK DO VÍDEO --- 
- * (Colocar o link do YouTube aqui no Dia 25)
- * * --- LINKS CHATGPT (ou similar) --- 
- * (Colocar links de compartilhamento, se usar)
+ * 
  */
 
-#include <stdio.h>    // Para printf, scanf, fopen, fclose, fprintf
-#include <stdlib.h>   // Para exit (se houver erro de arquivo)
-#include <limits.h>   // Para usar INT_MAX como "infinito" 
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h> //Para usar INT_MAX como "infinito"
 
-#define MAX_ESQUINAS 100 // Um limite razoável, pode ajustar se necessário
+#define MAX_ESQUINAS 100 //Limite de esquinas
 
-// --- DECLARAÇÃO DAS FUNÇÕES AUXILIARES --- 
-// (Vamos declarar as funções que planejamos criar)
-
+//Declaração das funções 
 void lerDadosEntrada(const char* nomeArquivo, int* esquinaIncendio, int* numEsquinas, int mapa[][MAX_ESQUINAS + 1]);
 void executarRotaMaisRapida(int numEsquinas, int mapa[][MAX_ESQUINAS + 1], int T[], int R[]);
 void gerarSaida(int esquinaIncendio, int numEsquinas, int T[], int R[]);
 void reconstruirCaminho(int esquinaAtual, int R[], FILE* arquivo);
 
-// --- FUNÇÃO PRINCIPAL ---
+//Main
 int main() {
     
-    // --- Variáveis Principais ---
+    //Variáveis Principais
     int esquinaIncendio;
     int numEsquinas;
     
-    // Matriz de adjacência para o mapa. mapa[origem][destino] = tempo
-    // +1 pois as esquinas são 1-indexadas 
+    //Matriz de adjacência para o mapa. mapa[origem][destino] = tempo
+    //+1 pois as esquinas são 1-indexadas 
     int mapa[MAX_ESQUINAS + 1][MAX_ESQUINAS + 1];
 
-    // Vetores do algoritmo [cite: 15]
+    //Vetores do algoritmo
     int T[MAX_ESQUINAS + 1]; // T[]: Tempos mínimos
     int R[MAX_ESQUINAS + 1]; // R[]: Rota (predecessores)
 
-    // --- Etapa 1: Carregar Dados ---
-    // (Implementar nos Dias 2-5)
-    // lerDadosEntrada("entrada.txt", &esquinaIncendio, &numEsquinas, mapa);
-    printf("Etapa 1: Ler dados (Ainda não implementado)\n");
+    //Carregar Dados
+    lerDadosEntrada("entrada.txt", &esquinaIncendio, &numEsquinas, mapa);
+    printf("Dados carregados de 'entrada.txt'.\n");
 
-    // --- Etapa 2: Executar Algoritmo ---
-    // (Implementar nos Dias 8-12)
-    // executarRotaMaisRapida(numEsquinas, mapa, T, R);
-    printf("Etapa 2: Executar algoritmo (Ainda não implementado)\n");
+    //Executar Algoritmo
+    executarRotaMaisRapida(numEsquinas, mapa, T, R);
+    printf("Algoritmo da rota mais rapida executado.\n");
 
-    // --- Etapa 3: Gerar Saída ---
-    // (Implementar nos Dias 15-19)
-    // gerarSaida(esquinaIncendio, numEsquinas, T, R);
-    printf("Etapa 3: Gerar saída (Ainda não implementado)\n");
-
-    printf("\nProjeto iniciado! Próximo passo: Implementar lerDadosEntrada.\n");
+    //Gerar Saída
+    gerarSaida(esquinaIncendio, numEsquinas, T, R);
+    printf("Saida gerada em 'saida.txt' e no console.\n");
 
     return 0;
 }
 
 
-// --- IMPLEMENTAÇÃO DAS FUNÇÕES ---
-
-/*
- * Função: lerDadosEntrada
- * (Implementar nos Dias 2-5)
- * Objetivo: Ler o arquivo texto e popular as variáveis e a matriz do mapa.
- */
+//Ler o arquivo texto e popular as variáveis e a matriz do mapa.
 void lerDadosEntrada(const char* nomeArquivo, int* esquinaIncendio, int* numEsquinas, int mapa[][MAX_ESQUINAS + 1]) {
     FILE *arquivo = fopen(nomeArquivo, "r");
     
+    //Validação da abertura do arquivo
     if (arquivo == NULL) {
-        printf("Erro ao abrir o arquivo de entrada '%s'!\n", nomeArquivo);
+        printf("Nao foi possivel abrir o arquivo '%s'!\n", nomeArquivo);
+        exit(1); //Para o programa se o arquivo não for encontrado
     }
-    fscanf(arquivo, "%d", esquinaIncendio);
 
+    //Leitura dos dados iniciais
+    fscanf(arquivo, "%d", esquinaIncendio);
     fscanf(arquivo, "%d", numEsquinas);
 
+    //Validação para checar se excede o limite 
+    if (*numEsquinas > MAX_ESQUINAS) {
+        printf("O numero de esquinas (%d) excede o limite do programa (%d).\n", *numEsquinas, MAX_ESQUINAS);
+        fclose(arquivo);
+        exit(1);
+    }
 
-    for (int i = 0; i <= *numEsquinas; i++) {
-        for (int j = 0; j <= *numEsquinas; j++) {
+    //Inicialização do mapa (começando em 1)
+    for (int i = 1; i <= *numEsquinas; i++) {
+        for (int j = 1; j <= *numEsquinas; j++) {
             mapa[i][j] = -1; // -1 = sem rota direta
         }
     }
 
     int origem, destino, tempo;
 
-    while (fscanf(arquivo, "%d %d %d", &origem, &destino, &tempo) == 3) {
+    //Loop de leitura das triplas
+    while (fscanf(arquivo, "%d", &origem) == 1) {
+        
+        //Condição de parada: linha com um único 0
         if (origem == 0) {
             break;
         }
+
+        //Se não for 0, lê o resto da tripla
+        if (fscanf(arquivo, "%d %d", &destino, &tempo) != 2) {
+             printf("Formato de arquivo invalido durante a leitura das ruas.\n");
+             break;
+        }
+        
         mapa[origem][destino] = tempo;
     }
 
     fclose(arquivo);
 }
 
-/*
- * Função: executarRotaMaisRapida
- * (Implementar nos Dias 8-12)
- * Objetivo: Executar o algoritmo (Dijkstra) e preencher T[] e R[].
- */
+//Executa o algoritmo (Dijkstra) e preenche T[] e R[].
 void executarRotaMaisRapida(int numEsquinas, int mapa[][MAX_ESQUINAS + 1], int T[], int R[]) {
-    int E[MAX_ESQUINAS + 1];
+    int E[MAX_ESQUINAS + 1]; //Estrutura auxiliar E
 
+    //Inicialização
     for (int i = 1; i <= numEsquinas; i++){
-        T[i] = INT_MAX; //Infinito
-        E[i] = 1; //Todas as esquinas começam com E
-        R[i] = -1; // -1 significa "sem predecessor"
+        T[i] = INT_MAX; //T[e] <- infinito [cite: 20]
+        E[i] = 1; //Adiciona 'i' ao conjunto E [cite: 18]
+        R[i] = -1; //-1 significa "sem predecessor"
     }
 
-    T[1] = 0;
+    T[1] = 0; //Tempo para o quartel (esquina 1) é 0
 
-    //Enquanto E não estiver vazio, iterar numEsquinas
+    // "enquanto E não estiver vazio"
+    // (Uma implementação simples de Dijkstra itera N vezes)
     for (int count = 1; count <= numEsquinas; count++){
         
         int v = -1;
         int menorTempo = INT_MAX;
 
+        //v <- uma esquina em E com menor custo no vetor T[]
         for (int i = 1; i <= numEsquinas; i++){
             //se i esta em E e tem o menor tempo
             if(E[i] == 1 && T[i] < menorTempo){
@@ -135,17 +138,24 @@ void executarRotaMaisRapida(int numEsquinas, int mapa[][MAX_ESQUINAS + 1], int T
             break;
         }
 
-        E[v] = 0;
+        E[v] = 0; //"E <- E - {v}" (remove v de E)
 
-        //loop 'para cada vizinho e' de 'v'
+        //para cada esquina e que seja acessada a partir da esquina v
         for (int e = 1; e <= numEsquinas; e++){
+            
+            //tal que a esquina e esteja presente em E
+            //mapa[v][e] != -1 -> checa se há caminho (acessada a partir de v)
+            //E[e] == 1 -> checa se 'e' está em E
+            //T[v] != INT_MAX -> checa se 'v' é alcançável
             if(mapa[v][e] != -1 && E[e] == 1 && T[v] != INT_MAX){
-                //checa se existe um caminho de 'v' para 'e', se esquina 'e' ainda está em E (E[e] == 1) e se T[v] não é infinito
-                int novoTempo = T[v] + mapa[v][e];
                 
+                int novoTempo = T[v] + mapa[v][e]; //T[v] + tempo para ir de v até e
+                
+                //se T[e] > T[v] + tempo par ir de v até e
                 if(novoTempo < T[e]){
-                    T[e] = novoTempo;
-                    //salva v como predescessor de e no caminho mais curto
+                    T[e] = novoTempo; //Atualiza o tempo
+                    
+                    // Armazena a rota (R[])
                     R[e] = v;
                 }
             }
@@ -153,54 +163,54 @@ void executarRotaMaisRapida(int numEsquinas, int mapa[][MAX_ESQUINAS + 1], int T
     }
 }
 
+//Usa R[] para imprimir o caminho de forma recursiva
 void reconstruirCaminho(int esquinaAtual, int R[], FILE* arquivo) {
     // Caso base: chegamos ao quartel (esquina 1)
     if (esquinaAtual == 1) {
         fprintf(arquivo, "1");
-    }else {
-        // Chamada recursiva para o predecessor
+    } else if (R[esquinaAtual] == -1) {
+        //Segurança: caso o caminho não exista e T[] não foi checado
+        fprintf(arquivo, "(rota invalida)");
+    } else {
+        //Chamada recursiva para o predecessor
         reconstruirCaminho(R[esquinaAtual], R, arquivo);
-        // Imprime a esquina atual após o caminho anterior
+        //Imprime a esquina atual após o caminho anterior
         fprintf(arquivo, " %d", esquinaAtual);
     }
 }
 
-/*
- * Função: gerarSaida
- * (Implementar nos Dias 15-19)
- * Objetivo: Imprimir no console e salvar em "saida.txt" 
- */
+//Imprime no console e salva em "saida.txt"
 void gerarSaida(int esquinaIncendio, int numEsquinas, int T[], int R[]) {
-    const char* arquivoSaida = "saida.txt";
-    FILE* arquivo_saida = fopen(arquivoSaida, "w");
+    
+    FILE* arquivo_saida = fopen("saida.txt", "w");
     if (arquivo_saida == NULL) {
-        printf("Erro ao abrir o arquivo de saída 'saida.txt'!\n");
+        printf("Erro ao criar o arquivo de saída 'saida.txt'!\n");
         return;
     }
 
+    //Checa se a esquina do incêndio é alcançável
     if (T[esquinaIncendio] == INT_MAX) {
-        // Incêndio inalcançável
-        printf("Inacessível\n");
-        fprintf(arquivo_saida, "Inacessível\n");
+        const char* msg = "Nao foi encontrada uma rota ate a esquina do incendio.\n";
+        
+        //Imprime na tela
+        printf("%s", msg);
+        //Salva no arquivo
+        fprintf(arquivo_saida, "%s", msg);
+
     } else {
+        //Saída na Tela com stdout
+        printf("Rota até a esquina #%d: ", esquinaIncendio);
+        reconstruirCaminho(esquinaIncendio, R, stdout); //stdout é o "arquivo" do console
+        printf("\n");
+        printf("Tempo calculado para rota = %d min.\n", T[esquinaIncendio]);
 
-    printf("Caminho mais rápido: ");
-    reconstruirCaminho(esquinaIncendio, R, stdout);
-    
-    printf("\nTempo total: %d minutos\n", T[esquinaIncendio]);
-
-    printf("Caminho mais rápido (arquivo): ");
+        //Saída no Arquivo saida.txt
+        fprintf(arquivo_saida, "Rota até a esquina #%d: ", esquinaIncendio);
         reconstruirCaminho(esquinaIncendio, R, arquivo_saida);
         fprintf(arquivo_saida, "\n");
-        fprintf(arquivo_saida, "\nTempo total: %d minutos\n", T[esquinaIncendio]);
-       
+        fprintf(arquivo_saida, "Tempo calculado para rota = %d min.\n", T[esquinaIncendio]);
     }
 
+    //Fecha o arquivo
     fclose(arquivo_saida);
-    // 1. Abrir "saida.txt" (fopen)
-    // 2. Chamar reconstruirCaminho(esquinaIncendio, R, stdout);
-    // 3. Chamar reconstruirCaminho(esquinaIncendio, R, arquivo_saida);
-    // 4. Imprimir tempo total no console (printf) 
-    // 5. Imprimir tempo total no arquivo (fprintf)
-    // 6. Fechar arquivo (fclose)
 }
